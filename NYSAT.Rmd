@@ -1,0 +1,27 @@
+---
+title: "NYSAT"
+author: "EKLAR"
+date: "2/7/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# EKLAR's Analysis on NY SAT Scores 
+Hi team mates,
+I am creating the R markdown file and syncing it to github version control. I believe that this will help us colloborate for the project.
+
+
+```{r dataset}
+str(Data_Set_Group_5)
+```
+
+
+
+```{r analysis}
+
+```
+
+
