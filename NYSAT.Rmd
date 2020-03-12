@@ -44,7 +44,7 @@ school_demographic2012<-school_demographic%>%filter(schoolyear=="20112012")
 joined_satanddemographic<-left_join(sat_scores,school_demographic2012,"DBN")
 all_joined<-left_join(joined_satanddemographic,school_survey,"DBN")
 
-df<-
+df<- 
   all_joined%>%select(DBN,
                       `SCHOOL NAME`,
                       `Num of SAT Test Takers`,
@@ -59,18 +59,42 @@ df<-
                       hispanic_per,
                       asian_per,
                       ell_percent,
-                      frl_percent)
+                      frl_percent) 
 
 df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
 df<-na.omit(df)
-
+```
+```{r}
+#include summary of dataset 
+ #   
 ```
 
 
+#Explorotary data analysis
 
+```{r, explore data}
+# How SAT is scored-(Ehtesham)
 
+# check the code in the Joining the three datasets section to make sure that 
+ # we have the nessesary variables + any accuracy issues (Ehtesham)
 
+# add the survey response columns from all_joined to df dataframe (laknath)
 
+# make characrter columns numeric that have SAT scores and percentage (Abinav)
 
+# Based on the real data deternime how we combine scores/or whether to keep seperate (Abhinav)
+  # should include histogram also boxplot (abhinav)
+
+# see if there is difference in aveage scores between just high scool vs those other types
+  # see if tere is difference between male and female (Ehtesham)
+
+# see if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
+
+# correlation plot (multi coleniarity) -Raj
+    # also include the numbers -Raj
+
+# plot histogram of (distribution) of SAT scores -Raj/Kushboo
+
+```  
 
