@@ -27,6 +27,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(here) 
 library(data.table)
 library(dplyr)
+library(ggplot2)
+library(ggpubr)
 ```
 
 ```{r, reading the data,include=FALSE}
@@ -63,11 +65,18 @@ df<-
 
 df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
+df[3:length(df)]<-lapply(df[5:length(df)],function(x) as.numeric(x)) # converting columns to 
+                                                                      # numeric
+
+
+
 df<-na.omit(df)
+
 ```
+
 ```{r}
 #include summary of dataset 
- #   
+summary(df)   
 ```
 
 
@@ -89,7 +98,6 @@ df<-na.omit(df)
 # see if there is difference in aveage scores between just high scool vs those other types
   # see if tere is difference between male and female (Ehtesham)
 
-# see if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
 
 # correlation plot (multi coleniarity) -Raj
     # also include the numbers -Raj
@@ -97,4 +105,27 @@ df<-na.omit(df)
 # plot histogram of (distribution) of SAT scores -Raj/Kushboo
 
 ```  
+
+
+
+# Determine if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
+```{r}
+
+pl_math<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Math Avg. Score`),
+             color="red",position = "jitter")
+
+pl_reading<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Critical Reading Avg. Score`),
+             color="green",position = "jitter")
+
+pl_writing<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Writing Avg. Score`),
+             color="orange",position = "jitter")
+
+ggarrange(pl_math,pl_reading,pl_writing)
+
+
+```
+It looks like there is a positve linear association between enrollment and SAT reading scores
 
