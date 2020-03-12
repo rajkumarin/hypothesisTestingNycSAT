@@ -1,27 +1,76 @@
 ---
 title: "NYSAT"
 author: "EKLAR"
-date: "2/7/2020"
-output: pdf_document
+date: 'null'
+output:
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# EKLAR's Analysis on NY SAT Scores 
-Hi team mates,
-I am creating the R markdown file and syncing it to github version control. I believe that this will help us colloborate for the project.
+#Links to the Datasource
+
++ NYC sat scores for 2012-https://data.cityofnewyork.us/Education/2012-SAT-Results/f9bf-2cp4
+
++ school accountability- https://data.cityofnewyork.us/Education/2006-2012-School-Demographics-and-Accountability-S/ihfw-zy9j
+
++ NYC general education survey-https://data.cityofnewyork.us/Education/2012-NYC-General-Education-School-Survey/xiyj-m4sj
 
 
-```{r dataset}
-str(Data_Set_Group_5)
+```{r,include=FALSE}
+#Loading Required Library's
+# install these library's if they are missing in your local machine
+#with install.packages()
+library(here) 
+library(data.table)
+library(dplyr)
 ```
-Github commit 1
 
+```{r, reading the data,include=FALSE}
+sat_scores<-
+  fread(here("RawData","2012_SAT_Results.csv"))
+school_demographic<-
+  fread(here("RawData","2006_-_2012_School_Demographics_and_Accountability_Snapshot.csv"))
+school_survey<-
+  fread(here("RawData","2012_NYC_General_Education_School_Survey.csv"))
+```
 
-```{r analysis}
+```{r,include=FALSE}
+# Joining the three datasets
+school_demographic2012<-school_demographic%>%filter(schoolyear=="20112012")
+joined_satanddemographic<-left_join(sat_scores,school_demographic2012,"DBN")
+all_joined<-left_join(joined_satanddemographic,school_survey,"DBN")
+
+df<-
+  all_joined%>%select(DBN,
+                      `SCHOOL NAME`,
+                      `Num of SAT Test Takers`,
+                      total_enrollment,
+                      `SAT Critical Reading Avg. Score`,
+                      `SAT Math Avg. Score`,
+                      `SAT Writing Avg. Score`,
+                      male_per,
+                      female_per,
+                      black_per,
+                      white_per,
+                      hispanic_per,
+                      asian_per,
+                      ell_percent,
+                      frl_percent)
+
+df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
+
+df<-na.omit(df)
 
 ```
+
+
+
+
+
+
 
 
