@@ -24,6 +24,10 @@ knitr::opts_chunk$set(echo = TRUE)
 #Loading Required Library's
 # install these library's if they are missing in your local machine
 #with install.packages()
+#install.packages('here')
+#install.packages('data.table')
+#install.packages('dplyr')
+
 library(here) 
 library(data.table)
 library(dplyr)
@@ -54,7 +58,8 @@ df<-
   all_joined%>%select(DBN,
                       `SCHOOL NAME`,
                       `Num of SAT Test Takers`,
-                      total_enrollment,
+                      'School Type',
+                      'total_enrollment',
                       `SAT Critical Reading Avg. Score`,
                       `SAT Math Avg. Score`,
                       `SAT Writing Avg. Score`,
@@ -70,7 +75,44 @@ df<-
 df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
 df<-na.omit(df)
+install.packages('readxl')
+install.packages('openxlsx')
+library(readxl)
+library(openxlsx)
+write.xlsx(df, 'ProjectRfile.xlsx') #exporting the df table to Excel for comparison
 ```
+```{r, finding averages by school categories,include=FALSE}
+ 
+str(df)
+df$`SAT Critical Reading Avg. Score` = as.numeric(df$`SAT Critical Reading Avg. Score`)
+df$`SAT Math Avg. Score` = as.numeric(df$`SAT Math Avg. Score`)
+df$`SAT Writing Avg. Score` = as.numeric(df$`SAT Writing Avg. Score`)
+df$`Num of SAT Test Takers` = as.numeric(df$`Num of SAT Test Takers`)
+df$total_enrollment = as.numeric(df$total_enrollment)
+str(df)
+ Readingaverage =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, mean)
+ Mathaverage =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, mean)
+ Writingaverage =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, mean)
+ ReadingSD =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, sd)
+ MathSD =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, sd)
+ WritingSD =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, sd)
+ 
+ 
+ SATtesttaker =  tapply(df$`Num of SAT Test Takers`,df$`School Type`, sum)
+ TotalEnrollment =  tapply(df$total_enrollment,df$`School Type`, sum)
+Read =c(Readingaverage)
+Math =c(Mathaverage)
+Writing = c(Writingaverage)
+ReadSD = c(ReadingSD)
+MathsSD = c(MathSD) 
+WritSD =c(WritingSD)
+Taker= c(SATtesttaker)
+Enrol= c (TotalEnrollment)
+rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
+```
+
+
+
 ```{r}
 #include summary of dataset 
  #   
