@@ -29,17 +29,22 @@ knitr::opts_chunk$set(echo = TRUE)
 #install.packages('here')
 #install.packages('data.table')
 #install.packages('dplyr')
+#install.packages("corrplot", dependencies = TRUE)
+#install.packages("ztable")
+#install.packages("moments")
 
 library(here) 
 library(data.table)
 library(dplyr)
-#install.packages("corrplot", dependencies = TRUE)
+library(ggplot2)
+library(ggpubr)
 library(corrplot)
-#install.packages("ztable")
 library(ztable)
-#install.packages("moments")
 library(moments)
-options(ztable.type = "html")
+install.packages('readxl')
+install.packages('openxlsx')
+library(readxl)
+library(openxlsx)
 ```
 
 ```{r, reading the data,include=FALSE}
@@ -77,12 +82,14 @@ df<-
 
 df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
+df[3:length(df)]<-lapply(df[5:length(df)],function(x) as.numeric(x)) # converting columns to 
+                                                                      # numeric
+
+
+
 df<-na.omit(df)
-install.packages('readxl')
-install.packages('openxlsx')
-library(readxl)
-library(openxlsx)
-write.xlsx(df, 'ProjectRfile.xlsx') #exporting the df table to Excel for comparison
+
+```
 ```
 ```{r, finding averages by school categories,include=FALSE}
  
@@ -116,9 +123,10 @@ rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
 
 
 
+
 ```{r}
 #include summary of dataset 
- #   
+summary(df)   
 ```
 
 #Explorotary data analysis
@@ -139,7 +147,6 @@ rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
 # see if there is difference in aveage scores between just high scool vs those other types
   # see if tere is difference between male and female (Ehtesham)
 
-# see if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
 
 # correlation plot (multi coleniarity) -Raj
     # also include the numbers -Raj
@@ -148,27 +155,31 @@ rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
 
 ```  
 
+
+
+
+# Determine if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
+```{r}
+
+pl_math<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Math Avg. Score`),
+             color="red",position = "jitter")
+
+pl_reading<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Critical Reading Avg. Score`),
+             color="green",position = "jitter")
+
+pl_writing<-ggplot(data = df)+
+  geom_point(mapping = aes(x = total_enrollment,y = `SAT Writing Avg. Score`),
+             color="orange",position = "jitter")
+
+ggarrange(pl_math,pl_reading,pl_writing)
+
+
+```
+It looks like there is a positve linear association between enrollment and SAT reading scores
+
 ```{r, RAJ}
-dfr = all_joined%>%select(DBN,
-                      `SCHOOL NAME`,
-                      `Num of SAT Test Takers`,
-                      total_enrollment,
-                      `SAT Critical Reading Avg. Score`,
-                      `SAT Math Avg. Score`,
-                      `SAT Writing Avg. Score`,
-                      male_per,
-                      female_per,
-                      black_per,
-                      white_per,
-                      hispanic_per,
-                      asian_per,
-                      ell_percent,
-                      frl_percent) 
-
-dfr[] <- lapply(dfr, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
-
-#Char to Num
-dfr[] <- lapply(dfr, function(x) type.convert(as.character(x), as.is = TRUE))
 
 #Error check
 dfr$totgen = dfr$male_per + dfr$female_per
@@ -234,3 +245,4 @@ par(mfrow=c(2, 2)); plot(noout$white_per, noout$asian_per); plot(noout$white_per
 plot(noout$white_per, noout$`SAT Writing Avg. Score`)
 
 ```
+
