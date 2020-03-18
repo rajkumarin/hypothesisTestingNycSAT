@@ -41,8 +41,6 @@ library(ggpubr)
 library(corrplot)
 library(ztable)
 library(moments)
-install.packages('readxl')
-install.packages('openxlsx')
 library(readxl)
 library(openxlsx)
 ```
@@ -90,15 +88,9 @@ df[3:length(df)]<-lapply(df[5:length(df)],function(x) as.numeric(x)) # convertin
 df<-na.omit(df)
 
 ```
-```
+
 ```{r, finding averages by school categories,include=FALSE}
- 
-str(df)
-df$`SAT Critical Reading Avg. Score` = as.numeric(df$`SAT Critical Reading Avg. Score`)
-df$`SAT Math Avg. Score` = as.numeric(df$`SAT Math Avg. Score`)
-df$`SAT Writing Avg. Score` = as.numeric(df$`SAT Writing Avg. Score`)
-df$`Num of SAT Test Takers` = as.numeric(df$`Num of SAT Test Takers`)
-df$total_enrollment = as.numeric(df$total_enrollment)
+ # Converting columns to numeric
 str(df)
  Readingaverage =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, mean)
  Mathaverage =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, mean)
@@ -182,11 +174,11 @@ It looks like there is a positve linear association between enrollment and SAT r
 ```{r, RAJ}
 
 #Error check
-dfr$totgen = dfr$male_per + dfr$female_per
-dfr$totdiv = dfr$black_per + dfr$white_per + dfr$hispanic_per + dfr$asian_per
+df$totgen = df$male_per + df$female_per
+df$totdiv = df$black_per + df$white_per + df$hispanic_per + df$asian_per
 
 #Simpson Diversity index
-dfr$div = 1 - (((dfr$black_per*(dfr$black_per-1))+(dfr$white_per*(dfr$white_per-1))+(dfr$hispanic_per*(dfr$hispanic_per-1))+(dfr$asian_per*(dfr$asian_per-1)))/9900)
+df$div = 1 - (((df$black_per*(df$black_per-1))+(df$white_per*(df$white_per-1))+(df$hispanic_per*(df$hispanic_per-1))+(df$asian_per*(df$asian_per-1)))/9900)
 
 # Missing data check
 #summary(dfr)
@@ -194,12 +186,12 @@ dfr$div = 1 - (((dfr$black_per*(dfr$black_per-1))+(dfr$white_per*(dfr$white_per-
 #apply(dfr,2,function(x) sum(is.na(x))*100/nrow(dfr)) #percentage of NAs
 
 percentmiss = function(x){sum(is.na(x))/length(x)*100} #percent miss row
-missing = apply(dfr,1,percentmiss)
+missing = apply(df,1,percentmiss)
 table(missing)
-replace = subset(dfr, missing <= 5)
+replace = subset(df, missing <= 5)
 missing1 = apply(replace,1,percentmiss)
 table(missing1)
-dont = subset(dfr, missing > 5)
+dont = subset(df, missing > 5)
 missing2 = apply(dont,1,percentmiss)
 table(missing2)
 #apply(replace,2,percentmiss) #missing in column
@@ -209,7 +201,7 @@ table(missing2)
 mah = mahalanobis(replace[,-c(1,2,16,17,18)],
                     colMeans(replace[,-c(1,2,16,17,18)], na.rm=TRUE),
                     cov(replace[,-c(1,2,16,17,18)], use ="pairwise.complete.obs")
-                    )
+                    )    # This piece of code doesn't seem to work
 #mah
 cutoff = qchisq(1-.001,ncol(replace))
 #print(cutoff)
@@ -245,4 +237,6 @@ par(mfrow=c(2, 2)); plot(noout$white_per, noout$asian_per); plot(noout$white_per
 plot(noout$white_per, noout$`SAT Writing Avg. Score`)
 
 ```
+
+
 
