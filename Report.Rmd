@@ -1,0 +1,61 @@
+---
+title: "Report"
+author: "Laknath"
+date: "March 20, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Report
+
+
+
+
+## Explorotary Data Analysis
+
+# Eshtesham findings
+
+
+
+
+
+
+
+
+
+# Kushboo Findings
+
+
+
+
+
+
+
+
+# Laknath Findings
+
+
+
+
+
+
+
+
+
+
+# Abinav Findings
+
+
+
+
+
+
+
+
+
+# Raj Findings
+
+
