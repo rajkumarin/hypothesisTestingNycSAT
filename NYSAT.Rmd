@@ -63,8 +63,8 @@ all_joined<-left_join(joined_satanddemographic,school_survey,"DBN")
 df<- 
   all_joined%>%select(DBN,
                       `SCHOOL NAME`,
-                      `Num of SAT Test Takers`,
                       'School Type',
+                      `Num of SAT Test Takers`,
                       'total_enrollment',
                       `SAT Critical Reading Avg. Score`,
                       `SAT Math Avg. Score`,
@@ -76,12 +76,12 @@ df<-
                       hispanic_per,
                       asian_per,
                       ell_percent,
-                      frl_percent) 
+                      frl_percent,
+                      `Total Engagement Score`) 
 
 df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
-df[3:length(df)]<-lapply(df[5:length(df)],function(x) as.numeric(x)) # converting columns to 
-                                                                      # numeric
+df<-na.omit(df)
 
 
 
