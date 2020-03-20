@@ -6,7 +6,6 @@ output:
   html_document:
     df_print: paged
   pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -79,26 +78,28 @@ df<-
                       frl_percent,
                       `Total Engagement Score`) 
 
-df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
+df$`Num of SAT Test Takers`[] <- 
+  lapply(df$`Num of SAT Test Takers`,function(x)as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
 df<-na.omit(df)
+df<-df%>%filter(!is.na(df$`Num of SAT Test Takers`))
 
 
+df[4:length(df)]<-lapply(df[4:length(df)],function(x) as.numeric(x)) # converting 
 
-df<-na.omit(df)
+str(df) # checking to makes sure that the all the character columns have been 
+        # converted to numeric
 
 ```
 
 ```{r, finding averages by school categories,include=FALSE}
- # Converting columns to numeric
-str(df)
  Readingaverage =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, mean)
  Mathaverage =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, mean)
  Writingaverage =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, mean)
  ReadingSD =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, sd)
  MathSD =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, sd)
  WritingSD =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, sd)
- 
+
  
  SATtesttaker =  tapply(df$`Num of SAT Test Takers`,df$`School Type`, sum)
  TotalEnrollment =  tapply(df$total_enrollment,df$`School Type`, sum)
@@ -111,6 +112,8 @@ WritSD =c(WritingSD)
 Taker= c(SATtesttaker)
 Enrol= c (TotalEnrollment)
 rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
+
+# Can you also add the Number of Schools (n) for each school type
 ```
 
 
@@ -152,17 +155,15 @@ summary(df)
 
 # Determine if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
 ```{r}
-
 pl_math<-ggplot(data = df)+
-  geom_point(mapping = aes(x = total_enrollment,y = `SAT Math Avg. Score`),
+  geom_point(mapping = aes(x = `Num of SAT Test Takers`,y = `SAT Math Avg. Score`),
              color="red",position = "jitter")
 
 pl_reading<-ggplot(data = df)+
-  geom_point(mapping = aes(x = total_enrollment,y = `SAT Critical Reading Avg. Score`),
-             color="green",position = "jitter")
+  geom_point(mapping = aes(x =`Num of SAT Test Takers`,y =`SAT Critical Reading Avg. Score`),color="green",position = "jitter")
 
 pl_writing<-ggplot(data = df)+
-  geom_point(mapping = aes(x = total_enrollment,y = `SAT Writing Avg. Score`),
+  geom_point(mapping = aes(x =`Num of SAT Test Takers` ,y = `SAT Writing Avg. Score`),
              color="orange",position = "jitter")
 
 ggarrange(pl_math,pl_reading,pl_writing)
@@ -238,5 +239,120 @@ plot(noout$white_per, noout$`SAT Writing Avg. Score`)
 
 ```
 
+```{r, Laknath Code Section}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+```{r, Raj Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Kushboo Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Abinav Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Ehtesham Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
