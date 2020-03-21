@@ -3,7 +3,8 @@ title: "NYSAT"
 author: "EKLAR"
 date: 'null'
 output:
-  word_document: default
+  html_document:
+    df_print: paged
   pdf_document: default
 ---
 
@@ -24,9 +25,23 @@ knitr::opts_chunk$set(echo = TRUE)
 #Loading Required Library's
 # install these library's if they are missing in your local machine
 #with install.packages()
+#install.packages('here')
+#install.packages('data.table')
+#install.packages('dplyr')
+#install.packages("corrplot", dependencies = TRUE)
+#install.packages("ztable")
+#install.packages("moments")
+
 library(here) 
 library(data.table)
 library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(corrplot)
+library(ztable)
+library(moments)
+library(readxl)
+library(openxlsx)
 ```
 
 ```{r, reading the data,include=FALSE}
@@ -47,8 +62,9 @@ all_joined<-left_join(joined_satanddemographic,school_survey,"DBN")
 df<- 
   all_joined%>%select(DBN,
                       `SCHOOL NAME`,
+                      'School Type',
                       `Num of SAT Test Takers`,
-                      total_enrollment,
+                      'total_enrollment',
                       `SAT Critical Reading Avg. Score`,
                       `SAT Math Avg. Score`,
                       `SAT Writing Avg. Score`,
@@ -59,17 +75,54 @@ df<-
                       hispanic_per,
                       asian_per,
                       ell_percent,
-                      frl_percent) 
+                      frl_percent,
+                      `Total Engagement Score`) 
 
-df[] <- lapply(df, function(x) as.character(gsub("s", NA, x))) #replacing "s" with NA's
+df$`Num of SAT Test Takers`[] <- 
+  lapply(df$`Num of SAT Test Takers`,function(x)as.character(gsub("s", NA, x))) #replacing "s" with NA's
 
 df<-na.omit(df)
-```
-```{r}
-#include summary of dataset 
- #   
+df<-df%>%filter(!is.na(df$`Num of SAT Test Takers`))
+
+
+df[4:length(df)]<-lapply(df[4:length(df)],function(x) as.numeric(x)) # converting 
+
+str(df) # checking to makes sure that the all the character columns have been 
+        # converted to numeric
+
 ```
 
+```{r, finding averages by school categories,include=FALSE}
+ Readingaverage =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, mean)
+ Mathaverage =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, mean)
+ Writingaverage =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, mean)
+ ReadingSD =  tapply(df$`SAT Critical Reading Avg. Score`,df$`School Type`, sd)
+ MathSD =  tapply(df$`SAT Math Avg. Score`,df$`School Type`, sd)
+ WritingSD =  tapply(df$`SAT Writing Avg. Score`,df$`School Type`, sd)
+
+ 
+ SATtesttaker =  tapply(df$`Num of SAT Test Takers`,df$`School Type`, sum)
+ TotalEnrollment =  tapply(df$total_enrollment,df$`School Type`, sum)
+Read =c(Readingaverage)
+Math =c(Mathaverage)
+Writing = c(Writingaverage)
+ReadSD = c(ReadingSD)
+MathsSD = c(MathSD) 
+WritSD =c(WritingSD)
+Taker= c(SATtesttaker)
+Enrol= c (TotalEnrollment)
+rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
+
+# Can you also add the Number of Schools (n) for each school type
+```
+
+
+
+
+```{r}
+#include summary of dataset 
+summary(df)   
+```
 
 #Explorotary data analysis
 
@@ -89,7 +142,6 @@ df<-na.omit(df)
 # see if there is difference in aveage scores between just high scool vs those other types
   # see if tere is difference between male and female (Ehtesham)
 
-# see if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
 
 # correlation plot (multi coleniarity) -Raj
     # also include the numbers -Raj
@@ -98,3 +150,209 @@ df<-na.omit(df)
 
 ```  
 
+
+
+
+# Determine if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
+```{r}
+pl_math<-ggplot(data = df)+
+  geom_point(mapping = aes(x = `Num of SAT Test Takers`,y = `SAT Math Avg. Score`),
+             color="red",position = "jitter")
+
+pl_reading<-ggplot(data = df)+
+  geom_point(mapping = aes(x =`Num of SAT Test Takers`,y =`SAT Critical Reading Avg. Score`),color="green",position = "jitter")
+
+pl_writing<-ggplot(data = df)+
+  geom_point(mapping = aes(x =`Num of SAT Test Takers` ,y = `SAT Writing Avg. Score`),
+             color="orange",position = "jitter")
+
+ggarrange(pl_math,pl_reading,pl_writing)
+
+
+```
+It looks like there is a positve linear association between enrollment and SAT reading scores
+
+```{r, RAJ}
+
+#Error check
+df$totgen = df$male_per + df$female_per
+df$totdiv = df$black_per + df$white_per + df$hispanic_per + df$asian_per
+
+#Simpson Diversity index
+df$div = 1 - (((df$black_per*(df$black_per-1))+(df$white_per*(df$white_per-1))+(df$hispanic_per*(df$hispanic_per-1))+(df$asian_per*(df$asian_per-1)))/9900)
+
+# Missing data check
+#summary(dfr)
+#apply(dfr,2,function(x) sum(is.na(x)))
+#apply(dfr,2,function(x) sum(is.na(x))*100/nrow(dfr)) #percentage of NAs
+
+percentmiss = function(x){sum(is.na(x))/length(x)*100} #percent miss row
+missing = apply(df,1,percentmiss)
+table(missing)
+replace = subset(df, missing <= 5)
+missing1 = apply(replace,1,percentmiss)
+table(missing1)
+dont = subset(df, missing > 5)
+missing2 = apply(dont,1,percentmiss)
+table(missing2)
+#apply(replace,2,percentmiss) #missing in column
+
+
+# Outlier check
+mah = mahalanobis(replace[,-c(1,2,16,17,18)],
+                    colMeans(replace[,-c(1,2,16,17,18)], na.rm=TRUE),
+                    cov(replace[,-c(1,2,16,17,18)], use ="pairwise.complete.obs")
+                    )    # This piece of code doesn't seem to work
+#mah
+cutoff = qchisq(1-.001,ncol(replace))
+#print(cutoff)
+summary(mah < cutoff)
+noout = subset(replace, mah < cutoff) #Eliminate outliers
+#str(noout)
+```
+# Correlation
+```{r results='asis'}
+# Additivity check
+corrplot(cor(noout[,-c(1,2,16,17)]))
+cormat = cor(noout[,-c(1,2,16,17)]) #Correlation quantified
+
+cormat %>%
+  as.data.frame() %>%
+  ztable() %>% 
+  makeHeatmap(mycolor = gradientColor(low="red",mid="white",high="blue")) %>%
+  print(caption="Correlation Heatmap")
+```
+
+```{r, Norm}
+#Normality check
+plot.new()
+par(mfrow=c(3, 3)); hist(noout$`SAT Critical Reading Avg. Score`, breaks=15, main = "SAT Reading", xlab=NA, ylab=NA); hist(noout$`SAT Math Avg. Score`, breaks=15, main = "SAT Math", xlab=NA, ylab=NA); hist(noout$`SAT Writing Avg. Score`, breaks=15, main = "SAT Writing", xlab=NA, ylab=NA); hist(noout$ell_percent, breaks=15, main = "ELL", xlab=NA, ylab=NA); hist(noout$frl_percent, breaks=15, main = "FRL", xlab=NA, ylab=NA); hist(noout$female_per, breaks=15, main = "Female %", xlab=NA, ylab=NA); hist(noout$white_per, breaks=15, main = "White %", xlab=NA, ylab=NA); hist(noout$black_per, breaks=15, main = "Black %", xlab=NA, ylab=NA); hist(noout$asian_per, breaks=15, main = "Asian %", xlab=NA, ylab=NA)
+
+#apply(noout[,-c(1,2,16,17)], 2, skewness, na.rm =TRUE)
+#apply(noout[,-c(1,2,16,17)], 2, kurtosis, na.rm =TRUE)
+
+hist(noout$div, breaks=25, main = "Diversity", xlab=NA, ylab=NA)
+
+par(mfrow=c(2, 2)); plot(noout$white_per, noout$asian_per); plot(noout$white_per, noout$black_per); plot(noout$hispanic_per, noout$black_per); plot(noout$hispanic_per, noout$asian_per)
+
+plot(noout$white_per, noout$`SAT Writing Avg. Score`)
+
+```
+
+```{r, Laknath Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+```{r, Raj Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Kushboo Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Abinav Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+```{r, Ehtesham Code Section}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
