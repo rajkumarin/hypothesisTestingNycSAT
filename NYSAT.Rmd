@@ -199,9 +199,9 @@ table(missing2)
 
 
 # Outlier check
-mah = mahalanobis(replace[,-c(1,2,16,17,18)],
-                    colMeans(replace[,-c(1,2,16,17,18)], na.rm=TRUE),
-                    cov(replace[,-c(1,2,16,17,18)], use ="pairwise.complete.obs")
+mah = mahalanobis(replace[,-c(1,2,3,18,19,20)],
+                    colMeans(replace[,-c(1,2,3,18,19,20)], na.rm=TRUE),
+                    cov(replace[,-c(1,2,3,18,19,20)], use ="pairwise.complete.obs")
                     )    # This piece of code doesn't seem to work
 #mah
 cutoff = qchisq(1-.001,ncol(replace))
@@ -213,8 +213,8 @@ noout = subset(replace, mah < cutoff) #Eliminate outliers
 # Correlation
 ```{r results='asis'}
 # Additivity check
-corrplot(cor(noout[,-c(1,2,16,17)]))
-cormat = cor(noout[,-c(1,2,16,17)]) #Correlation quantified
+corrplot(cor(noout[,-c(1,2,3,18,19)]))
+cormat = cor(noout[,-c(1,2,3,18,19)]) #Correlation quantified
 
 cormat %>%
   as.data.frame() %>%
