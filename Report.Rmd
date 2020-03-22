@@ -36,12 +36,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Laknath Findings
+Exploratory Data Analysis-We wanted to understand whether SAT scores in schools with  higher rates of poverty is different from more affluent schools. Based on a categorization proposed by the National Center for Education Statistics (NCES) we categorized schools using the free or reduced lunch percentage into to mid-low poverty and low poverty schools and med-high poverty, high poverty schools. 
 
+Next we wanted to understand whether there is a difference in the mean Math sat score between the low poverty schools group and the high poverty schools group
 
+H0-There is no difference in the mean Math SAT score between low poverty and high poverty schools
 
+HA- There is a difference in the mean Math SAT score between low poverty and high poverty schools
 
+Since we assume the 412 datapoints to be a random sample of the 1700 schools in New York City, and since the the SAT scores for the various schools are likely nearly normal, we ran a Welch 2-sample t test
 
+Welch Two Sample t-test
 
+data:  SAT Math Avg. Score by poverty
+t = 9.4363, df = 59.061, p-value = 2.137e-13
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+  87.10987 133.99479
+sample estimates:
+mean in group mid low to low poverty    mean in group mid to high poverty 
+                            509.6364                             399.0840 
+
+Accordingly, we reject the null hypthesis and conclude that there is a difference in the average Math SAT score between low poverty and high poverty schools.
 
 
 
