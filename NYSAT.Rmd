@@ -334,7 +334,128 @@ t.test(`SAT Math Avg. Score` ~ poverty, data = df_poverty, var.equal = FALSE)
 
 ```
 ```{r, Ehtesham Code Section}
-
+head(df)
+summary(df) # To see quartiles and mean
+dist = table(df$`SAT Math Avg. Score`) # making a frequency table to see if its normal
+barplot(dist) + cleanup
+hist(dist, breaks=10) + cleanup
+skewness(df$`SAT Math Avg. Score`) # 1.815097 since its greater than 1 therefore highly skewed
+kurtosis(df$`SAT Math Avg. Score`) # 4.097635 High Kurtosis means the tails are longer and fatter and central peak is higher and sharper
+ #1: Your dependent variable should be measured on a continuous scale.True
+ #2: You have two or more independent variables. True
+ #3: You should have independence of observations. True
+ #4: There needs to be a linear relationship. Checked via scatter plots and line of best fit
+#A Total Enrollment Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$total_enrollment, df$`SAT Math Avg. Score`,xlab = "Total Enrollment", ylab = "SAT Math AQvg Score") + cleanup
+TEregA = lm(df$`SAT Math Avg. Score` ~ df$total_enrollment, data = df)
+abline(TEregA,col="red")
+distA = table(df$total_enrollment) # making a frequency table to see if its normal
+barplot(distA)
+hist(distA, breaks = 10)
+skewness(df$total_enrollment) # 2.756 since its greater than 1 therefore highly skewed
+kurtosis(df$total_enrollment) # 7.43 High Kurtosis means the tails are longer and fatter and central peak is higher and sharper
+#B Male Percent Scatter Plot  + Bar Plot + Skewness + Kutosis
+plot(df$male_per, df$`SAT Math Avg. Score`,xlab = "Male %", ylab = "SAT Math AQvg Score")
+TEregB = lm(df$`SAT Math Avg. Score` ~ df$male_per, data = df)
+abline(TEregB,col="red")
+distB = table(df$male_per) # making a frequency table to see if its normal
+barplot(distB) 
+hist(distB, breaks = 10)
+skewness(df$male_per) # 0.1498 Normal skewness
+kurtosis(df$male_per) # 3.58 High Kurtosis means the tails are longer and fatter and central peak is higher and sharper
+#C Female Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$female_per, df$`SAT Math Avg. Score`,xlab = "Female %", ylab = "SAT Math AQvg Score")
+TEregC = lm(df$`SAT Math Avg. Score` ~ df$female_per, data = df)
+abline(TEregC,col="red")
+distC = table(df$female_per) # making a frequency table to see if its normal
+barplot(distC) 
+hist(distC, breaks = 10)
+skewness(df$female_per) # -0.1499 Normal skewness
+kurtosis(df$female_per) # 3.58 Normal skewness
+#D Black Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$black_per, df$`SAT Math Avg. Score`,xlab = "Black %", ylab = "SAT Math AQvg Score")
+TEregD = lm(df$`SAT Math Avg. Score` ~ df$black_per, data = df)
+abline(TEregD,col="red")
+distD = table(df$black_per) # making a frequency table to see if its normal
+barplot(distD) 
+hist(distD, breaks = 10)
+skewness(df$black_per) # 0.6190 Normal skewness
+kurtosis(df$black_per) # -0.7412 Normal skewness
+#E White Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$white_per, df$`SAT Math Avg. Score`,xlab = "WWhite %", ylab = "SAT Math AQvg Score")
+TEregE = lm(df$`SAT Math Avg. Score` ~ df$white_per, data = df)
+abline(TEregE,col="red")
+distE = table(df$white_per) # making a frequency table to see if its normal
+barplot(distE) 
+hist(distE, breaks = 10)
+skewness(df$white_per) # 2.64 Normal skewness
+kurtosis(df$white_per) # 7.034 Highly Kutosis
+#F Hispanic Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$hispanic_per, df$`SAT Math Avg. Score`,xlab = "Hispanic %", ylab = "SAT Math AQvg Score")
+TEregF = lm(df$`SAT Math Avg. Score` ~ df$hispanic_per, data = df)
+abline(TEregF,col="red")
+distF = table(df$hispanic_per) # making a frequency table to see if its normal
+barplot(distF) 
+hist(distF, breaks = 10)
+skewness(df$hispanic_per) # 0.1315 Normal skewness
+kurtosis(df$hispanic_per) # -1.03371 Normal kurtosis
+ #G Asian Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$asian_per, df$`SAT Math Avg. Score`,xlab = "Asian %", ylab = "SAT Math AQvg Score")
+TEregG = lm(df$`SAT Math Avg. Score` ~ df$asian_per, data = df)
+abline(TEregG,col="red")
+distG = table(df$asian_per) # making a frequency table to see if its normal
+barplot(distG) 
+hist(distG, breaks = 10)
+skewness(df$asian_per) # 2.47 Normal skewness
+kurtosis(df$asian_per) # 6.57 Abnormal Kutosis
+#H ELL Percent Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$ell_percent, df$`SAT Math Avg. Score`,xlab = "Number of English Learners %", ylab = "SAT Math AQvg Score")
+TEregH = lm(df$`SAT Math Avg. Score` ~ df$ell_percent, data = df)
+abline(TEregH,col="red")
+distH = table(df$ell_percent) # making a frequency table to see if its normal
+barplot(distH) 
+hist(distH, breaks = 10)
+skewness(df$ell_percent) # 2.95 Normal skewness
+kurtosis(df$ell_percent) # 8.34 Abnormal Kutosis
+#I FRL Percent  Scatter Plot + Bar Plot + Skewness + Kutosis
+plot(df$frl_percent, df$`SAT Math Avg. Score`,xlab = "Free and Reduced Lunch %", ylab = "SAT Math AQvg Score")
+TEregI = lm(df$`SAT Math Avg. Score` ~ df$frl_percent, data = df)
+abline(TEregI,col="red")
+distI = table(df$frl_percent) # making a frequency table to see if its normal
+barplot(distI) 
+hist(distI, breaks = 10)
+skewness(df$frl_percent) # -1.00 Normal skewness
+kurtosis(df$frl_percent) # 0.88 Normal Kutosis
+ #5: Check for missing values. DId not see any mising values
+summary(df)
+#6 Checking for outliers
+MLR = cbind(total_enrollment, male_per, female_per, black_per, white_per, hispanic_per, asian_per, ell_percent, frl_percent)
+mahal = mahalanobis(MLR,
+                    colMeans(MLR, na.rm = TRUE),
+                    cov(MLR, use = "pairwise.complete.obs"))
+mahal
+cutoff = qchisq(1-0.001,ncol(MLR)) # detrming the cutoff point
+print(cutoff)
+summary(mahal < cutoff) # Determining the number of outliers. 16 outliers. WE are not taking out outliers due to two #reasons:
+#1) Our data is an average score of all schools so therefore, we can not identify them on a unique basis
+#2) We need to be concerned about outliers that are possible errors. Here scoring a perfect 800 is possible and the max SAT math score in our data is 735.
+noout = subset(MLR, mahal < cutoff) # Values which are not outliers
+nooutd = as.data.frame(t(noout))
+str(noout)
+# 7 Multicolinearity check./ As per Raj's analysis all the values are less than 0.90
+#MLR
+olsreg2Math = lm(`SAT Math Avg. Score` ~ MLR)
+summary(olsreg2Math) # Only ELL & FRL are significantly different than 0 so include them in the model. The other independent variables are not significatly different from 0 therefore holding all things constant these independant variables do not impact the dependant variable 
+#8 Linearity check. 
+plot(olsreg2Math,2) # The plot shows that the standardized errors are normally distributed. 
+plot(olsreg2Math,1) # Plot to check for homogenity and homoscedasticity. To me it seems homogenous spread above the line is almost equal to spread below the line but I dont think its homoscedastic as its not uniform along the x axis. Katge Valentine Prof mentioned use bootstraping, I have no clue what that is. 
+anova(olsreg2Math)# Since P value is less than 0.05 therefore we have a joint  significant result
+confint(olsreg2Math, level = 0.95) # The ones that dont contain the 0 in the intervaql are significant which is confirmed by our other results
+yhat = fitted(olsreg2Math) # Predicted values for the dependent variable.
+summary(yhat)
+# Regression Residuals
+ehat = resid(olsreg2Math)
+summary(ehat) # SUm of residuals on average is 0
 
 
 
