@@ -166,14 +166,13 @@ pl_writing<-ggplot(data = df)+
   geom_point(mapping = aes(x =`Num of SAT Test Takers` ,y = `SAT Writing Avg. Score`),
              color="orange",position = "jitter")
 
-ggarrange(pl_math,pl_reading,pl_writing)
+scores_sattakers<-ggarrange(pl_math,pl_reading,pl_writing)
 
-
+ggsave(filename = file.path(here("plots","scoresandtakers.png")))
 ```
 It looks like there is a positve linear association between enrollment and SAT reading scores
 
 ```{r, RAJ}
-
 #Error check
 df$totgen = df$male_per + df$female_per
 df$totdiv = df$black_per + df$white_per + df$hispanic_per + df$asian_per
@@ -240,26 +239,27 @@ plot(noout$white_per, noout$`SAT Writing Avg. Score`)
 ```
 
 ```{r, Laknath Code Section}
+#https://nces.ed.gov/programs/coe/pdf/coe_clb.pdf
 
+df_poverty<-df%>%mutate(poverty=case_when(frl_percent>50~"mid to high poverty",
+                              frl_percent<=50~"mid low to low poverty"))
+poverty_low<-df_poverty%>%filter(poverty=="mid to high poverty")
+hist(poverty_low$`SAT Math Avg. Score`)
+poverty_high<-df_poverty%>%filter(poverty=="mid low to low poverty")
+hist(poverty_high$`SAT Math Avg. Score`)
 
+df_poverty<-df_poverty%>%
+  filter(poverty %in% c("mid to high poverty","mid low to low poverty"))
+  
+povertyplot<-ggplot(data = df_poverty,aes(x = frl_percent,y = `SAT Math Avg. Score`))+
+  geom_point(aes(color=poverty))+
+  xlab("Percentage of students with free or reduced lunches")+
+  ylab("Average SAT math score")+
+  ggtitle("understanding relationship between poverty and SAT performance")
 
+ggsave(filename = file.path(here("plots","povertyplot.png")))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+t.test(`SAT Math Avg. Score` ~ poverty, data = df_poverty, var.equal = FALSE)
 
 ```
 
