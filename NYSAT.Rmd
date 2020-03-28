@@ -1,7 +1,7 @@
 ---
 title: "NYSAT"
 author: "EKLAR"
-date: 'null'
+date: '03/28/2020'
 output:
   word_document: default
   pdf_document: default
@@ -124,7 +124,6 @@ Taker= c(SATtesttaker)
 Enrol= c (TotalEnrollment)
 rbind(Read, Math, Writing, ReadSD, MathsSD, WritSD, Taker, Enrol)
 attach(df)
-# Can you also add the Number of Schools (n) for each school type
 ```
 
 
@@ -135,37 +134,14 @@ attach(df)
 summary(df)   
 ```
 
-#Explorotary data analysis
-
-```{r, explore data}
-# How SAT is scored-(Ehtesham)
-
-# check the code in the Joining the three datasets section to make sure that 
- # we have the nessesary variables + any accuracy issues (Ehtesham)
-
-# add the survey response columns from all_joined to df dataframe (laknath)
-
-# make characrter columns numeric that have SAT scores and percentage (Abinav)
-
-# Based on the real data deternime how we combine scores/or whether to keep seperate (Abhinav)
-  # should include histogram also boxplot (abhinav)
-
-# see if there is difference in aveage scores between just high scool vs those other types
-  # see if tere is difference between male and female (Ehtesham)
-
-
-# correlation plot (multi coleniarity) -Raj
-    # also include the numbers -Raj
-
-# plot histogram of (distribution) of SAT scores -Raj/Kushboo
-
-```  
 
 
 
 
-# Determine if there is a relationship between enrollment and SAT scores-scatterplot (Laknath)
-```{r}
+
+
+```{r} 
+# Determine if there is a relationship between enrollment and SAT scores-scatterplot
 pl_math<-ggplot(data = df)+
   geom_point(mapping = aes(x = `Num of SAT Test Takers`,y = `SAT Math Avg. Score`),
              color="red",position = "jitter")
@@ -179,12 +155,11 @@ pl_writing<-ggplot(data = df)+
 
 ggarrange(pl_math,pl_reading,pl_writing) + cleanup
 
-
+#It looks like there is a positve linear association between enrollment and SAT reading scores
 ```
-It looks like there is a positve linear association between enrollment and SAT reading scores
 
-```{r, RAJ}
 
+```{r, missing data}
 #Error check
 df$totgen = df$male_per + df$female_per
 df$totdiv = df$black_per + df$white_per + df$hispanic_per + df$asian_per
@@ -218,6 +193,10 @@ mah = mahalanobis(replace[,-c(1,2,3,18,19,20)],
 cutoff = qchisq(1-.001,ncol(replace))
 #print(cutoff)
 summary(mah < cutoff)
+
+# Determining the number of outliers. 15 outliers. We are not taking out outliers due to two #reasons:
+#1) Our data is an average score of all schools so therefore, we can not identify them on a unique basis
+#2) We need to be concerned about outliers that are possible errors. Here scoring a perfect 800 is possible and the max SAT math score in our data is 735.
 noout = subset(replace, mah < cutoff) #Eliminate outliers
 #str(noout)
 ```
@@ -248,103 +227,48 @@ par(mfrow=c(2, 2)); plot(noout$white_per, noout$asian_per); plot(noout$white_per
 
 plot(noout$white_per, noout$`SAT Writing Avg. Score`)
 
+scp = subset(noout, select = -c(1,2,3))
+scp$w = scp$white_per * scp$total_enrollment * 0.01
+scp$b = scp$black_per * scp$total_enrollment * 0.01
+scp$a = scp$asian_per * scp$total_enrollment * 0.01
+scp$h = scp$hispanic_per * scp$total_enrollment * 0.01
+scp$o = scp$total_enrollment - scp$w - scp$b - scp$a - scp$h
+pi <- data.frame(
+  group = c("White", "Black", "Hispanic", "Asian", "Other"),
+  value = c(sum(scp$w), sum(scp$b), sum(scp$h), sum(scp$a), sum(scp$o))
+  )
+
+bp<- ggplot(pi, aes(x="", y=value, fill=group))+
+geom_bar(width = 1, stat = "identity")
+
+pie <- bp + coord_polar("y", start=0)
+blank_theme <- theme_minimal()+
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+library(scales)
+m = pie + scale_fill_brewer(palette = "Dark2") +
+  blank_theme +
+  theme(axis.text.x=element_blank())+
+  geom_text(aes(y = value/1.75 + c(0, cumsum(value)[-length(value)]),
+                label = percent(value/sum(value))), size=7, angle = 55)+
+  labs(title="Overall racial mix in schools")
+
+n = ggplot(scp, aes(white_per)) + geom_histogram()+labs(x="White%",y="# Schools")
+o = ggplot(scp, aes(black_per)) + geom_histogram()+labs(x="Black%",y="# Schools")
+p = ggplot(scp, aes(asian_per)) + geom_histogram()+labs(x="Asian%",y="# Schools")
+z = ggplot(scp, aes(hispanic_per)) + geom_histogram()+labs(x="Hispanic%",y="# Schools")
+grid.arrange(n,o,p,m, nrow = 2)
+grid.arrange(n,o,p,z, nrow = 2)
 ```
 
-```{r, Laknath Code Section}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-
-
-```{r, Raj Code Section}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-```{r, Kushboo Code Section}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-```{r, Abinav Code Section}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-```{r, Ehtesham Model part,include=FALSE}
+```{r, Model part,include=FALSE}
 head(df)
 summary(df) # To see quartiles and mean
 dist = table(df$`SAT Math Avg. Score`) # making a frequency table to see if its normal
@@ -352,10 +276,11 @@ barplot(dist) + cleanup
 hist(dist, breaks=10) + cleanup
 skewness(df$`SAT Math Avg. Score`) # 1.815097 since its greater than 1 therefore highly skewed
 kurtosis(df$`SAT Math Avg. Score`) # 4.097635 High Kurtosis means the tails are longer and fatter and central peak is higher and sharper
- #1: Your dependent variable should be measured on a continuous scale.True
- #2: You have two or more independent variables. True
- #3: You should have independence of observations. True
- #4: There needs to be a linear relationship. Checked via scatter plots and line of best fit
+#Data checks 
+#1: Dependent variable should be measured on a continuous scale.True
+ #2: Should have two or more independent variables. True
+ #3: We have independence of observations. 
+ #4: There needs to be a linear relationship. Checked via scatter plots and line of best fit above
 #A Total Enrollment Scatter Plot + Bar Plot + Skewness + Kutosis
 plot(df$total_enrollment, df$`SAT Math Avg. Score`,xlab = "Total Enrollment", ylab = "SAT Math AQvg Score") + cleanup
 TEregA = lm(df$`SAT Math Avg. Score` ~ df$total_enrollment, data = df)
@@ -439,26 +364,113 @@ skewness(df$frl_percent) # -1.00 Normal skewness
 kurtosis(df$frl_percent) # 0.88 Normal Kutosis
 
 
- #5: Check for missing values. DId not see any mising values
+#5: Check for missing values. Already removed these at data screening part when we uploaded the data
 summary(df)
-#6 Checking for outliers
-MLR4 = cbind(ell_percent, frl_percent, white_per, asian_per, black_per)
-mahal = mahalanobis(MLR4,
-                    colMeans(MLR4, na.rm = TRUE),
-                    cov(MLR4, use = "pairwise.complete.obs"))
-mahal
-cutoff = qchisq(1-0.001,ncol(MLR4)) # detrming the cutoff point=20.515
-print(cutoff)
-summary(mahal < cutoff) # Determining the number of outliers. 12 outliers. WE are not taking out outliers due to two #reasons:
-#1) Our data is an average score of all schools so therefore, we can not identify them on a unique basis
-#2) We need to be concerned about outliers that are possible errors. Here scoring a perfect 800 is possible and the max SAT math score in our data is 735.
+#6 Best model selection
+MLRfull = cbind(ell_percent, frl_percent, white_per, asian_per, black_per, male_per, hispanic_per, total_enrollment)
+#Step1
+MLRS1a = cbind(ell_percent, frl_percent, white_per, asian_per, black_per, male_per, hispanic_per)
+MLR1b = cbind(ell_percent, frl_percent, white_per, asian_per, black_per, male_per, total_enrollment)
+MLR1c = cbind(ell_percent, frl_percent, white_per, asian_per, black_per, hispanic_per, total_enrollment)
+MLR1d = cbind(ell_percent, frl_percent, white_per, asian_per, male_per, hispanic_per, total_enrollment)
+MLR1e = cbind(ell_percent, frl_percent, white_per, black_per, male_per, hispanic_per, total_enrollment)
+MLR1f = cbind(ell_percent, frl_percent, asian_per, black_per, male_per, hispanic_per, total_enrollment)
+MLR1g = cbind(ell_percent,  white_per, asian_per, black_per, male_per, hispanic_per, total_enrollment)
+MLR1h = cbind(frl_percent, white_per, asian_per, black_per, male_per, hispanic_per, total_enrollment)
+#Step2
+MLR2a = cbind(ell_percent, frl_percent, white_per, black_per, male_per, hispanic_per)
+MLR2b = cbind(ell_percent, frl_percent, white_per, black_per, male_per, total_enrollment)
+MLR2c = cbind(ell_percent, frl_percent, white_per, black_per, hispanic_per, total_enrollment)
+MLR2d = cbind(ell_percent, frl_percent, white_per, male_per, hispanic_per, total_enrollment)
+MLR2e = cbind(ell_percent, frl_percent, black_per, male_per, hispanic_per, total_enrollment)
+MLR2f = cbind(ell_percent, white_per, black_per, male_per, hispanic_per, total_enrollment)
+MLR2g = cbind(frl_percent, white_per, black_per, male_per, hispanic_per, total_enrollment)
+#Step3
+MLR3a = cbind(ell_percent, frl_percent, white_per, black_per, hispanic_per)
+MLR3b = cbind(ell_percent, frl_percent, white_per, black_per, total_enrollment)
+MLR3c = cbind(ell_percent, frl_percent, white_per, hispanic_per, total_enrollment)
+MLR3d = cbind(ell_percent, frl_percent, black_per, hispanic_per, total_enrollment)
+MLR3e = cbind(ell_percent, white_per, black_per, hispanic_per, total_enrollment)
+MLR3f = cbind(frl_percent, white_per, black_per, hispanic_per, total_enrollment)
+#Step4
+MLR4a = cbind(ell_percent, frl_percent, white_per, black_per)
+MLR4b = cbind(ell_percent, frl_percent, white_per, hispanic_per)
+MLR4c = cbind(ell_percent, frl_percent, black_per, hispanic_per)
+MLR4d = cbind(ell_percent, white_per, black_per, hispanic_per)
+MLR4e = cbind(frl_percent, white_per, black_per, hispanic_per)
 
-# 7 Multicolinearity check./ As per Raj's analysis all the values are less than 0.90
+
+
+MLR4 = cbind(ell_percent, frl_percent, white_per, asian_per, black_per)
+
+
+# 7 Multicolinearity check. As per earlier analysis all the values are less than 0.90
 
 #MLR
+#Picking the best model
 
-olsreg2Math8 = lm(`SAT Math Avg. Score` ~ MLR4)
-summary(olsreg2Math8)
+olsreg2Mathfull = lm(`SAT Math Avg. Score` ~ MLRfull)
+summary(olsreg2Mathfull)
+
+olsreg2Math1a = lm(`SAT Math Avg. Score` ~ MLRS1a) # Removed total enrollment
+summary(olsreg2Math1a)
+olsreg2Math1b = lm(`SAT Math Avg. Score` ~ MLR1b) # Removed Hispanic %
+summary(olsreg2Math1b)
+olsreg2Math1c = lm(`SAT Math Avg. Score` ~ MLR1c) # Removed male %
+summary(olsreg2Math1c)
+olsreg2Math1d = lm(`SAT Math Avg. Score` ~ MLR1d) # Removed black %
+summary(olsreg2Math1d)
+olsreg2Math1e = lm(`SAT Math Avg. Score` ~ MLR1e) # Removed asian %
+summary(olsreg2Math1e)
+olsreg2Math1f = lm(`SAT Math Avg. Score` ~ MLR1f) # Removed white %
+summary(olsreg2Math1f)
+olsreg2Math1g = lm(`SAT Math Avg. Score` ~ MLR1g) # Removed frl %
+summary(olsreg2Math1g)
+olsreg2Math1h = lm(`SAT Math Avg. Score` ~ MLR1h) # Removed ell %
+summary(olsreg2Math1h)
+
+olsreg2Math2a = lm(`SAT Math Avg. Score` ~ MLR2a) # Removed total enrollment
+summary(olsreg2Math2a)
+olsreg2Math2b = lm(`SAT Math Avg. Score` ~ MLR2b) # Removed Hispanic %
+summary(olsreg2Math2b)
+olsreg2Math2c = lm(`SAT Math Avg. Score` ~ MLR2c) # Removed male %
+summary(olsreg2Math2c)
+olsreg2Math2d = lm(`SAT Math Avg. Score` ~ MLR2d) # Removed black %
+summary(olsreg2Math2d)
+olsreg2Math2e = lm(`SAT Math Avg. Score` ~ MLR2e) # Removed white %
+summary(olsreg2Math2e)
+olsreg2Math2f = lm(`SAT Math Avg. Score` ~ MLR2f) # Removed frl %
+summary(olsreg2Math2f)
+olsreg2Math2g = lm(`SAT Math Avg. Score` ~ MLR2g) # Removed ell %
+summary(olsreg2Math1g)
+
+olsreg2Math3a = lm(`SAT Math Avg. Score` ~ MLR3a) # Removed total enrollment
+summary(olsreg2Math3a)
+olsreg2Math3b = lm(`SAT Math Avg. Score` ~ MLR3b) # Removed Hispanic %
+summary(olsreg2Math3b)
+olsreg2Math3c = lm(`SAT Math Avg. Score` ~ MLR3c) # Removed black %
+summary(olsreg2Math3c)
+olsreg2Math3d = lm(`SAT Math Avg. Score` ~ MLR3d) # Removed white %
+summary(olsreg2Math3d)
+olsreg2Math3e = lm(`SAT Math Avg. Score` ~ MLR3e) # Removed frl %
+summary(olsreg2Math3e)
+olsreg2Math3f = lm(`SAT Math Avg. Score` ~ MLR3f) # Removed ell %
+summary(olsreg2Math3f)
+
+
+olsreg2Math4a = lm(`SAT Math Avg. Score` ~ MLR4a) # Removed Hispanic %
+summary(olsreg2Math4a)
+olsreg2Math4b = lm(`SAT Math Avg. Score` ~ MLR4b) # Removed black %
+summary(olsreg2Math4b)
+olsreg2Math4c = lm(`SAT Math Avg. Score` ~ MLR4c) # Removed white %
+summary(olsreg2Math4c)
+olsreg2Math4d = lm(`SAT Math Avg. Score` ~ MLR4d) # Removed frl %
+summary(olsreg2Math4d)
+olsreg2Math4e = lm(`SAT Math Avg. Score` ~ MLR4e) # Removed ell %
+summary(olsreg2Math4e)
+
+olsreg2Mathfinal = lm(`SAT Math Avg. Score` ~ MLR3a) # Removed total enrollment
+summary(olsreg2Mathfinal)
 #8 Linearity check. 
 plot(olsreg2Math8,2) # The plot shows that the standardized errors are normally distributed. 
 
@@ -473,29 +485,5 @@ yhat = fitted(olsreg2Math8) # Predicted values for the dependent variable.
 summary(yhat)
 # Regression Residuals
 ehat = resid(olsreg2Math8)
-summary(ehat) # SUm of residuals on average is 0
-
-
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+summary(ehat) # Sum of residuals on average is 0
 ```
